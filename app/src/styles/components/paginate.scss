@@ -1,0 +1,14 @@
+.paginate {
+  button {
+    background-color: royalblue;
+    padding: 3px;
+    margin: 0 3px;
+    &.index {
+      padding: 3px 7px;  
+    }
+    &.selected {
+      background-color: rgba(139, 163, 236, 0.781);
+    }
+  }
+  
+}
