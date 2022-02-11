@@ -1,5 +1,6 @@
 <template>
-  <h3>paginas</h3>
+  <section class="page">
+    <h3>paginas</h3>
   <form @submit="create">
 
     <button type="submit">criar</button>
@@ -14,6 +15,7 @@
     @pagination="paginate"
     :data="data_paginate"
   />
+  </section>
 </template>
 <script>
 import Paginate from '@/components/Paginate.vue';
@@ -47,7 +49,6 @@ export default {
       }).then((res)=>{
         console.log(res.data);
       });
-      console.log(url)
       
     },
     paginate: function(page=1) {
@@ -58,7 +59,6 @@ export default {
     }
   },
   mounted: function(){
-    console.log(this.$route.query);
     this.paginate();
   }
 }

@@ -1,0 +1,54 @@
+.modal {
+  z-index: 2;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(52, 50, 54, 0.788);
+}
+
+.modal__alert {
+  background-color: whitesmoke;
+  padding: 17px;
+  border: 1px solid rgb(194, 188, 188);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  max-width: 400px;
+}
+
+.modal__header {
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.356);
+}
+.modal__content {
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.356); 
+}
+.modal__footer {
+  margin-top: 10px;
+  p {
+    font-size: 13px;
+  }
+}
+.modal__actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  .btn {
+    border-radius: 2px;
+    padding: 2px 7px;
+    border: 1px solid rgba(128, 128, 128, 0.445);
+    color: rgba(5, 5, 5, 0.842);
+    background-color: antiquewhite;
+    &.understand {
+      background-color: rgba(110, 183, 243, 0.767);
+    }
+    &.confirm {
+      background-color: rgba(38, 182, 38, 0.767);
+    }
+    &.cancel {
+      background-color: rgba(182, 38, 38, 0.767);
+    }
+  }
+}

@@ -1,7 +1,7 @@
 <template>
   <form @submit="signin">
     <div class="input">
-      <label>Digite seu email(fake){{ meunome }}</label>
+      <label>Digite seu email(fake)</label>
       <input class="input" type="email" name="email" v-model="email">
     </div>
     <div class="input">
@@ -16,13 +16,13 @@
 </template>
 <script>
 import { csrf } from '../service';
-import store from '../store';
+import store, {alertActionType} from '../store';
 import router from '../router';
 import '../styles/main.scss';
 
 export default {
   data:()=>({
-    email: 'lulu.conn@example.org',
+    email: 'maria67@example.net',
     password: 'password'
   }),
   name: 'Signin',
@@ -30,9 +30,6 @@ export default {
    
   },
   computed: {
-    meunome: function(){
-      return store.state.info.nome;
-    },
     user_info: function(){
       return store.getters.getInfo;
     }
@@ -40,12 +37,28 @@ export default {
   methods: {
     requestAccess: async function() {
       try {
-        csrf();
-        const response = await axios.post('/sign-in');
-        store.dispatch('login',{access_token: response.data.access_token});
+        await csrf();
+        const response = await axios.post('/sign-in', {
+          email: this.email,
+          password: this.password
+        });
+        store.dispatch('login',{
+          access_token: response.data.access_token
+        });
         router.push('/');
       } catch(err) {
-        console.log(err)
+        if(!err.response) {
+          return console.log(err);
+        }
+        store.dispatch('alert', {
+          type: alertActionType.OPEN_ALERT,
+          data: {
+            content: {
+              title: 'Erro no login',
+              text: err.response.data.message
+            },
+          }
+        }); 
       }
     },
     signin: async function(event) {

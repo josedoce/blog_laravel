@@ -1,10 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
-import Signin from '../views/Signin.vue';
-import Logout from '../views/Logout.vue';
-import Page from '../views/Page.vue';
+import Home from '@/views/Home.vue'
+import Signin from '@/views/Signin.vue';
+import Logout from '@/views/Logout.vue';
+import Page from '@/views/Page.vue';
 import Show from '@/views/Show.vue';
 import About from '@/views/About.vue';
+import Dashboard from '@/views/Dashboard.vue';
 
 const routes = [
   {
@@ -26,6 +27,11 @@ const routes = [
     path: '/about/:user_id',
     name: 'About',
     component: About,
+  },
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: Dashboard,
   },
   {
     path: '/signin',

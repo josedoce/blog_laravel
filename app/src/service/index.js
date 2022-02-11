@@ -3,11 +3,10 @@ import axios from 'axios';
 const instance = axios.create({
   withCredentials: true,
   baseURL: process.env.VUE_APP_API,
-  timeout: 1000
 });
 
-const csrf = function(){
-  instance.get(`${ process.env.VUE_APP_API.replace('/api', '') }/sanctum/csrf-cookie`)
+const csrf = async function(){
+  return await instance.get(`${ process.env.VUE_APP_API.replace('/api', '') }/sanctum/csrf-cookie`)
   .then((res)=>{
     console.log('csrf is ok');
   });

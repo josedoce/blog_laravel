@@ -62,7 +62,6 @@ Route::get('/posts', function(Request $req){
     ],$status);
 });
 
-
 Route::get('/posts/{post_id}', function(int $post_id){
     $status = Response::HTTP_UNPROCESSABLE_ENTITY;
     if(!is_numeric($post_id)) {
@@ -98,6 +97,47 @@ Route::get('/users/{user_id}', function(int $user_id){
 
     return response()->json([
         'user'=> $data
+    ],$status);
+});
+
+Route::middleware('auth:sanctum')->get('/users/{user_id}/posts', function(Request $request, int $user_id){
+    $page = $request->query('page') == null ? 1 : $request->query('page');
+    $limit = $request->query('limit') == null ? 20 : $request->query('limit');
+    $fl = $request->query('friendly_link') == null ? 5 : $request->query('friendly_link');
+    $status = Response::HTTP_UNPROCESSABLE_ENTITY;
+    if(!is_numeric($user_id)) {
+        return response()->json([
+            'message'=>'page is not numeric',
+            'status'=>$status
+        ],$status);
+    }
+
+    $data = User::where('id',$user_id)->select('id','name','email')->first();
+    
+    if(!$data || $user_id != $request->user()->id){
+        $status = Response::HTTP_BAD_REQUEST;
+        return response()->json([
+            'message'=>'user don\'t exists or your token is invalid',
+            'status'=>$status
+        ],$status);
+    }
+    $count = $data->posts()->count();
+    $paginate = new Paginate($page, $limit, $count);
+    $paginate->setLinkPagesAvailable($paginate->getTotalPages());
+    $posts = $data->posts()
+        ->offset($paginate->getOffset())
+        ->limit($paginate->getResultPerPage())
+        ->get();
+    $status = Response::HTTP_OK;
+    return response()->json([
+        'posts'=> $posts,
+        'paginate'=>[
+            'friendly_link'=>$paginate->getLinkPagesAvailable($fl),
+            'limit_per_page'=>(int) $limit,
+            'current_page'=>(int) $page,
+            'total_pages'=>$paginate->getTotalPages(),
+            'count'=> $count,
+        ]
     ],$status);
 });
 
@@ -153,16 +193,22 @@ Route::middleware('auth:sanctum')->get('/is-auth', function(Request $request){
 });
 
 Route::post('/sign-in', function (Request $request) {
+    $body = $request->only(['email', 'password']);
     $device_name = 'desktop';
-    $credentials = [
-        'email' => 'keshawn.swift@example.net',
-        'password' => 'password'
-    ];
+    
+    $user = User::where('email', $body['email'])->first();
+    if(!$user){
+        return 
+        response()->json([
+            'message'=>'user email don\'t exists'
+        ], 400);
+    }
 
-    $user = User::where('email', $credentials['email'])->first();
-
-    if (! $user || ! Hash::check($credentials['password'], $user->password)) {
-        return 'error';
+    if (!Hash::check($body['password'], $user->password)) {
+        return response()   
+        ->json([
+            'message'=>'password is wrong'
+        ],400);
         /*
         throw ValidationException::withMessages([
             'email' => ['The provided credentials are incorrect.'],

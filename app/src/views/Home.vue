@@ -1,14 +1,13 @@
 <template>
-  
-    <Navbar />
-    <pre><code>{{ user_info }}</code></pre>
-    <div v-if="data_posts.length != 0">
-      <Card
-        v-for="(data, index) in data_posts" :key="index"
-        :data="data"
-      />
-    </div>  
-
+    <section class="home">
+      <h2>Adicionados recentemente</h2>
+      <div v-if="data_posts.length != 0">
+        <Card
+          v-for="(data, index) in data_posts" :key="index"
+          :data="data"
+        />
+      </div> 
+    </section>
 </template>
 
 <script>
@@ -34,8 +33,8 @@ export default {
       return store.getters.getInfo;
     }
   },
-  mounted: function(){
-    axios.get(`/posts?page=1&limit=10`).then((res)=>{
+  mounted: async function(){
+    await axios.get(`/posts?page=1&limit=10`).then((res)=>{
       this.posts = res.data.posts;
     }).catch((err)=> console.log(err));
   }

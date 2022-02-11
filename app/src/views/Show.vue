@@ -1,11 +1,13 @@
 <template>
-<h2>Publicação</h2>
-<Card
-  v-if="post != undefined"
-  :data="data_post"
-  :btn="false"
-  :about-link="true"
-/>
+<section class="show">
+  <h2>Publicação</h2>
+  <Card
+    v-if="post != undefined"
+    :data="data_post"
+    :btn="false"
+    :about-link="true"
+  />
+</section>
 
 </template>
 <script>

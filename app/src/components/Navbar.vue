@@ -90,7 +90,7 @@
     computed: {
       user_name: function(){
         const user_name = store.getters.getInfo.user.name;
-        return user_name.split(' ')[0];
+        return user_name.split(' ')[0] + ' ' + user_name.split(' ')[1];
       },
       auth: function(){
         return store.getters.getInfo.is_auth?'auth':'no_auth';
