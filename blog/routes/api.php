@@ -21,7 +21,8 @@ use Illuminate\Support\Facades\Hash;
 */
 Route::get('/', function(){
     return response()->json([
-        'api_version'=>1
+        'api_version'=>1,
+        'app'=>'http://localhost:8080'
     ],200);
 });
 
@@ -45,7 +46,8 @@ Route::get('/posts', function(Request $req){
 
     $data = Post::with(['user'=>function($q){
         $q->select('id', 'name');
-    }])->offset($paginate->getOffset())
+    }])->orderBy('id', 'DESC')
+        ->offset($paginate->getOffset())
         ->limit($paginate->getResultPerPage())
         ->get();
     
@@ -58,6 +60,7 @@ Route::get('/posts', function(Request $req){
             'current_page'=>(int) $page,
             'total_pages'=>$paginate->getTotalPages(),
             'count'=> $count,
+            'has_next'=>$paginate->hasNext()
         ]
     ],$status);
 });
@@ -72,6 +75,14 @@ Route::get('/posts/{post_id}', function(int $post_id){
     }
 
     $data = Post::find($post_id);
+    if(!$data) {
+        $status = Response::HTTP_NOT_FOUND;
+        
+        return response()->json([
+            'message'=>'page is not numeric',
+            'status'=>$status
+        ],$status);
+    }
     $user = $data->user()->select('name','id')->first();
     $status = Response::HTTP_OK;
 
@@ -83,20 +94,27 @@ Route::get('/posts/{post_id}', function(int $post_id){
     ],$status);
 });
 
-Route::get('/users/{user_id}', function(int $user_id){
+Route::get('/posts/{post_id}/user', function(string $post_id){
     $status = Response::HTTP_UNPROCESSABLE_ENTITY;
-    if(!is_numeric($user_id)) {
+    if(!is_numeric($post_id)) {
         return response()->json([
             'message'=>'page is not numeric',
             'status'=>$status
         ],$status);
     }
 
-    $data = User::where('id',$user_id)->select('id','name','email')->first();
+    $post = Post::find($post_id);
+    if(!$post){
+        $status = Response::HTTP_NOT_FOUND;
+        return response()->json([
+            'message'=>'post not exists',
+            'status'=>$status
+        ],$status);
+    }
     $status = Response::HTTP_OK;
-
+    $user = $post->user()->first();
     return response()->json([
-        'user'=> $data
+        'user'=> $user
     ],$status);
 });
 
@@ -137,6 +155,7 @@ Route::middleware('auth:sanctum')->get('/users/{user_id}/posts', function(Reques
             'current_page'=>(int) $page,
             'total_pages'=>$paginate->getTotalPages(),
             'count'=> $count,
+            'has_next'=>$paginate->hasNext()
         ]
     ],$status);
 });
@@ -176,19 +195,101 @@ Route::middleware('auth:sanctum')->get('/user/posts', function(Request $req){
         ]
     ],$status);
 });
+//create post
+Route::middleware('auth:sanctum')->post('/posts', function(Request $request){
 
-Route::post('/posts', function(Request $request){
     $body = $request->only(['title','text']);
-    return Post::create([
+    
+    $user = User::find($request->user()->id);
+    
+    $created = $user->posts()->create([
         'title'=>$body['title'],
-        'text'=>$body['text'],
-        'user_id'=>1
+        'text'=>$body['text']
     ]);
+    if(!$created){
+        return response()->json([
+            'message'=>'post isnot created.',
+            'status'=>400
+        ],400);
+    }
+
+    return response()->json([
+        'message'=>'post created.',
+        'status'=>200
+    ],200);
+});
+
+//update post
+Route::middleware('auth:sanctum')->put('/posts/{post_id}/update', function(Request $request, $post_id){
+    $body = $request->only(['title', 'text']);
+    $status = Response::HTTP_UNPROCESSABLE_ENTITY;
+    if(!is_numeric($post_id)) {
+        return response()->json([
+            'message'=>'post_id is not numeric',
+            'status'=>$status
+        ],$status);
+    }
+    $user =  User::find($request->user()->id);
+    $updated = $user
+        ->posts()
+        ->find($post_id)
+        ->update($body);
+
+    if(!$updated) {
+        $status = Response::HTTP_BAD_REQUEST;
+        return response()->json([
+            'message'=>'fail on update',
+            'status'=>$status
+        ],$status);
+    }
+
+    $status = Response::HTTP_ACCEPTED;
+    return response()->json([
+        'message'=>'success on update',
+        'status'=>$status
+    ],$status);
+});
+
+//delete post
+Route::middleware('auth:sanctum')->delete('/posts/{post_id}/delete', function(Request $request, $post_id){
+    $status = Response::HTTP_UNPROCESSABLE_ENTITY;
+    if(!is_numeric($post_id)) {
+        return response()->json([
+            'message'=>'post_id is not numeric',
+            'status'=>$status
+        ],$status);
+    }
+
+    $user = User::find($request->user()->id);
+    
+    $deleted = $user
+        ->posts()
+        ->find($post_id)
+        ->delete();
+    if(!$deleted) {
+        $status = Response::HTTP_BAD_REQUEST;
+        return response()->json([
+            'message'=>'fail on delete',
+            'status'=>$status
+        ],$status);
+    }
+
+    $status = Response::HTTP_ACCEPTED;
+    return response()->json([
+        'message'=>'success on delete',
+        'status'=>$status
+    ],$status);
 });
 
 Route::middleware('auth:sanctum')->get('/is-auth', function(Request $request){
+    $user = array_filter($request->user()->toArray(), function($key){
+        if($key == 'id' || $key == 'name' || $key == 'email') {
+            return true;
+        }
+    }, ARRAY_FILTER_USE_KEY);
+    
     return response()->json([
-        'user'=> $request->user()
+        'user'=> $user
     ],200);
 });
 
@@ -224,6 +325,42 @@ Route::post('/sign-in', function (Request $request) {
     ],200);
 });
 
+Route::post('/sign-up', function (Request $request) {
+    $body = $request->only(['name','email', 'password']);
+    $device_name = 'desktop';
+   
+    $new_user = User::where('email', $body['email'])->first();
+    if($new_user){
+        return response()->json([
+            'message'=>'user email already exists'
+        ], 400);
+    }
+
+    $created = User::create([
+        'name'=>$body['name'],
+        'email'=>$body['email'],
+        'password'=>Hash::make($body['password'])
+    ]);
+
+    if (!$created) {
+        return response()   
+        ->json([
+            'message'=>'user is not created.'
+        ],400);
+
+    }
+    
+    $user = User::where('email', $created->email)->first();
+
+    $accessToken = $user->createToken($device_name, [
+        'server:create'
+    ])->plainTextToken;
+    
+    return response()->json([
+        'access_token'=> $accessToken
+    ],200);
+});
+
 Route::middleware('auth:sanctum')->delete('/sign-out', function(Request $request){
 
     
@@ -237,14 +374,6 @@ Route::middleware('auth:sanctum')->delete('/sign-out', function(Request $request
         ->where('tokenable_id', $user['id'])
         ->where('id', $tokenId)
         ->delete();
-
-    return response()->json([
-        'user'=> $request->user()
-    ],200);
-});
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return response()->json([
-        'user' => $request->user()
-    ],200);
+    
+    return response()->json([],Response::HTTP_NO_CONTENT);
 });

@@ -1,0 +1,28 @@
+.dashboard {
+    display: flex;
+    justify-content: center;
+    height: 100vh;
+}
+.dashboard__content {
+    h2, h5 {
+        text-align: center;
+    }
+}
+.dashboard__empty {
+    display: flex;
+    align-items: center;
+    height: 400px;
+    h5 {
+        color: gray;
+        a {
+            color: rgba(0, 0, 255, 0.815);
+            &:hover{
+                text-decoration: underline;
+            }
+        }
+    }
+}
+
+.card__action {
+    min-width: 1000px;
+}

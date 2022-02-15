@@ -1,6 +1,6 @@
 <template>
   <div class="app__content">
-    <Alert />
+    <AlertApp/>
     <Navbar />
     <main>
       <router-view/>
@@ -14,15 +14,13 @@
 <script>
 import './styles/main.scss';
 import Navbar from './components/Navbar.vue';
-import Alert from './components/Alert.vue';
+import AlertApp from './components/AlertApp.vue';
 
 export default {
   name: 'App',
-  
   components: {
     Navbar,
-    Alert
+    AlertApp
   },
-
 }
 </script>

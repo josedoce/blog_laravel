@@ -1,30 +1,31 @@
 <template>
   <section class="page">
     <h3>paginas</h3>
-  <form @submit="create">
-
-    <button type="submit">criar</button>
-  </form>
-  <div v-if="data_posts.length != 0">
-      <Card
-        v-for="(data, index) in data_posts" :key="index"
-        :data="data"
-      />
-  </div> 
-  <Paginate 
-    @pagination="paginate"
-    :data="data_paginate"
-  />
+    <CardCreate v-if="is_auth" @creatednewpost="paginate"/>
+    <div v-if="data_posts.length != 0">
+        <Card
+          v-for="(data, index) in data_posts" :key="index"
+          :data="data"
+        />
+    </div> 
+    <Paginate 
+      @pagination="paginate"
+      :data="data_paginate"
+    />
   </section>
 </template>
 <script>
 import Paginate from '@/components/Paginate.vue';
 import Card from '@/components/Card.vue';
+import CardCreate from '../components/CardCreate.vue';
+import { viewError } from '../utils';
+import store from '../store';
 
 export default {
   components: {
     Paginate,
-    Card
+    Card,
+    CardCreate
   },
   data: function(){
     return {
@@ -36,26 +37,24 @@ export default {
   computed: {
     data_posts: function(){
       return this.posts;
+    },
+    is_auth: function(){
+      return store.getters.getInfo.is_auth;
     }
   },
   methods: {
-    create: function(event){
-      const { url } = this.$store.state.info;
-      event.preventDefault();
-      event.stopPropagation();
-      axios.post(`/posts`,{
-        title: 'um titulo do frontend',
-        text: 'um texto grande do frontend'
-      }).then((res)=>{
-        console.log(res.data);
-      });
-      
-    },
-    paginate: function(page=1) {
-      axios.get(`/posts?page=${page}&limit=${this.limit}`).then((res)=>{
-        this.posts = res.data.posts;
-        this.data_paginate = res.data.paginate;
-      }).catch((err)=> console.log(err));
+    paginate: async function(page=1) {
+      try {
+        const response = await axios.get(`/posts?page=${page}&limit=${this.limit}`);
+        this.posts = response.data.posts;
+        this.data_paginate = response.data.paginate;
+      }catch(err){
+        if(!err.response){
+          console.log(err);
+          return;
+        }
+        viewError(err, 'Erro ao requisitar posts');
+      }
     }
   },
   mounted: function(){

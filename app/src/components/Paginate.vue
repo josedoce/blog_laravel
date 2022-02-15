@@ -1,6 +1,6 @@
 <template>
   <div class="text-center paginate">
-    <button @click="paginate(data.current_page - 1)">voltar</button>
+    <button @click="paginate(data.current_page - 1)" :disabled="data.current_page != 1?false:true">voltar</button>
     <button class="index selected">{{ data.current_page }}</button>
     <button
         class="index" 
@@ -9,7 +9,7 @@
         @click="paginate(data)">
       {{ data }}
     </button>
-    <button @click="paginate(data.current_page + 1)">proximo</button>
+    <button @click="paginate(data.current_page + 1)" :disabled="!data.has_next">proximo</button>
   </div>
 </template>
 <script>
@@ -22,13 +22,9 @@ import '@/styles/components/paginate.scss';
           return {
             friendly_link: [],
             current_page: 0,
+            has_next: true
           }
         }
-      }
-    },
-    data () {
-      return {
-        page: 1,
       }
     },
     methods: {
@@ -36,6 +32,10 @@ import '@/styles/components/paginate.scss';
         if(index > 0) {
           this.$emit('pagination', index);
         }
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        })
       }
     }
   }

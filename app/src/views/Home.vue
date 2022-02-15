@@ -12,8 +12,7 @@
 
 <script>
 import Card from '@/components/Card.vue';
-import HelloWorld from '../components/HelloWorld.vue';
-import store from '../store';
+import { viewError } from '../utils';
 export default {
   name: 'Home',
   data: function(){
@@ -22,21 +21,24 @@ export default {
     }
   },
   components: {
-    HelloWorld,
     Card
   },
   computed: {
     data_posts: function(){
       return this.posts;
     },
-    user_info: function(){
-      return store.getters.getInfo;
-    }
   },
   mounted: async function(){
-    await axios.get(`/posts?page=1&limit=10`).then((res)=>{
-      this.posts = res.data.posts;
-    }).catch((err)=> console.log(err));
+    try {
+      const response = await axios.get(`/posts?page=1&limit=10`);
+      this.posts = response.data.posts;
+    }catch(err){
+      if(!err.response){
+        console.log(err);
+        return;
+      }
+      viewError(err, 'Erro ao requisitar posts');
+    }
   }
 };
 </script>

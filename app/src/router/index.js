@@ -4,8 +4,11 @@ import Signin from '@/views/Signin.vue';
 import Logout from '@/views/Logout.vue';
 import Page from '@/views/Page.vue';
 import Show from '@/views/Show.vue';
-import About from '@/views/About.vue';
+import Post from '@/views/Post.vue';
 import Dashboard from '@/views/Dashboard.vue';
+import Signup from '@/views/Signup.vue';
+import PError from '@/views/Error.vue';
+import About from '@/views/About.vue';
 
 const routes = [
   {
@@ -19,12 +22,17 @@ const routes = [
     component: Page
   },
   {
-    path: '/posts/:post_id',
+    path: '/post/:post_id',
     name: 'Show',
     component: Show
   },
   {
-    path: '/about/:user_id',
+    path: '/post/:post_id/user',
+    name: 'Post',
+    component: Post,
+  },
+  {
+    path: '/about',
     name: 'About',
     component: About,
   },
@@ -39,10 +47,21 @@ const routes = [
     component: Signin
   },
   {
+    path: '/signup',
+    name: 'Signup',
+    component: Signup
+  },
+  {
     path: '/logout',
     name: 'Logout',
     component: Logout
   },
+  {
+    path: '/error',
+    name: 'Error',
+    props: true,
+    component: PError,
+  }
 ]
 
 const router = createRouter({

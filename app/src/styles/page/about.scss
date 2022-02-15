@@ -1,0 +1,26 @@
+.about {
+    display: flex;
+    justify-content: center;
+    a {
+        text-decoration: underline;
+        color: blue;
+    }
+}
+.about__content {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+}
+.content__info {
+    max-width: 550px;
+    .info {
+        table, th, td {
+            border: 0;
+            padding: 0;
+            margin: 0;
+        }
+        tr {
+            background-color: gray;
+        }
+    }
+}

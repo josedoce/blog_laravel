@@ -14,7 +14,7 @@
           {{ data.user.name }}
         </div>
         <div v-if="aboutLink" class="text-h6 mb-1">
-          <router-link :to="'/about/'+data.user.id">
+          <router-link :to="'/post/'+data.id+'/user'">
             {{ data.user.name }}
           </router-link>
         </div>
@@ -25,7 +25,7 @@
     </v-card-header>
 
     <v-card-actions v-if="btn">
-      <router-link :to="'/posts/'+data.id">
+      <router-link :to="'/post/'+data.id">
         <v-btn size="small" flat>
           mais
         </v-btn>

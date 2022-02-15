@@ -11,13 +11,26 @@
             <v-btn variant="text">{{ item.text }}</v-btn>
           </router-link>
         </li>
+        <li>
+          <v-btn variant="text" @click="minimenu">conta</v-btn>
+          <ul class="account" v-if="mini_menu">
+            <li><strong v-if="auth == 'auth'">{{ user_name }}</strong></li>
+            <li v-for="(item, i) in items" :key="i">
+              <router-link :to="item.path" v-if="item.context == auth">
+                <v-btn size="small" block>{{ item.text }}</v-btn>
+              </router-link>
+            </li>
 
+          </ul>
+        </li>
       </ul>
        <v-menu
           transition="slide-x-transition"
           bottom
           right
         >
+
+        <!--
       <template v-slot:activator="{ props }">
         <v-btn
           class="deep-orange"
@@ -42,6 +55,7 @@
         </ul>
         
       </v-list>
+      -->
     </v-menu>  
     </nav>
 
@@ -62,6 +76,10 @@
         {
           text: 'postagens',
           path: '/page'
+        },
+        {
+          text: 'about',
+          path: '/about'
         },
       ],
       items: [
@@ -86,14 +104,23 @@
           path: '/logout'
         }
       ],
+      mini_menu: false,
     }),
     computed: {
       user_name: function(){
         const user_name = store.getters.getInfo.user.name;
-        return user_name.split(' ')[0] + ' ' + user_name.split(' ')[1];
+        if(user_name.split(' ')[1]){
+          return user_name.split(' ')[0] + ' ' + user_name.split(' ')[1];
+        }
+        return user_name.split(' ')[0];
       },
       auth: function(){
         return store.getters.getInfo.is_auth?'auth':'no_auth';
+      }
+    },
+    methods: {
+      minimenu: function(){
+        this.mini_menu = !this.mini_menu;
       }
     }
   }

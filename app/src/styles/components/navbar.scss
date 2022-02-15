@@ -18,8 +18,24 @@
     @extend .flex;
     .menu__items {
       @extend .flex;
+      overflow: hidden;
       list-style: none;
       
+    }
+    .account {
+      position: absolute;
+      list-style: none;
+      background-color: #f9f7f7;
+      padding: 4px;
+      border-radius: 4px;
+      box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.479);
+      li{
+        margin: 6px 0;
+        strong {
+          display: block;
+          text-align: center;
+        }
+      }
     }
   }
 }

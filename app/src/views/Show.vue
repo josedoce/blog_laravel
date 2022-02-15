@@ -12,6 +12,7 @@
 </template>
 <script>
 import Card from '@/components/Card.vue';
+import { viewError } from '../utils';
 export default {
   components: {
     Card,
@@ -27,10 +28,18 @@ export default {
       return {...content, user};
     }
   },
-  mounted: function(){
-    axios.get(`/posts/${this.$route.params.post_id}`).then((res)=>{
-      this.post = res.data.post;
-    }).catch((err)=> console.log(err));
+  mounted: async function(){
+    try {
+      const response = await axios.get(`/posts/${this.$route.params.post_id}`);
+      this.post = response.data.post;
+    }catch(err){
+      if(!err.response){
+        console.log(err);
+        return;
+      }
+      viewError(err, 'Não foi possivel encontrar o post');
+    }
+    
   }
 }
 </script>

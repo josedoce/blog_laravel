@@ -1,0 +1,48 @@
+.signin {
+    display: flex;
+    justify-content: center;
+    height: 100vh;
+}
+.signin__title{
+    color:rgba(0, 0, 0, 0.541);
+}
+.signin__content {
+    display: flex;
+    align-items: center;
+}
+.signin__form, .input input, .input .btn {
+    border-radius: 5px;
+    border: 1px solid rgba(102, 51, 153, 0.329);
+}
+.signin__form {
+    padding: 20px;
+    width: 250px;
+    .input {
+        label, input {
+            display: block;
+            text-align: center;
+            width: 100%;
+        }
+        label {
+            font-size: 13px;
+            color: rgba(0, 0, 0, 0.692);
+        }
+       
+        .btn {
+            margin: 0 auto;
+            display: block;
+            color: rgba(0, 0, 0, 0.548);
+            padding: 0 7px;
+        }
+        label, .btn {
+            margin-top: 10px;
+        }
+        input, .btn {
+            height: 30px;
+        }
+        input::placeholder{
+            color: rgb(128, 1, 255);
+            font-size: 12px;
+        }
+    }
+}

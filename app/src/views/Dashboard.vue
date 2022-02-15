@@ -1,27 +1,41 @@
 <template>
   <section class="dashboard">
-    <h2>Minha publicações</h2>
-    <div v-if="data_posts.length != 0">
-      <Card
-        v-for="(data, index) in data_posts" :key="index"
-        :data="data"
-      />
+    <div class="dashboard__content">
+      <div>
+        <h2>Minha publicações</h2>
+      </div>
+      <div class="dashboard__empty" v-if="data_posts.length == 0">
+        <h5>você não possui publicações. 
+          <router-link to="/page">criar publicação</router-link>
+        </h5>
+      </div>
+      <div class="card__action" v-if="data_posts.length != 0">
+        <CardAction
+          
+          v-for="(data, index) in data_posts" :key="index"
+          :data="data"
+        />
 
-       <Paginate 
-        @pagination="paginate"
-        :data="data_paginate"
-      />
+        <Paginate 
+          @pagination="paginate"
+          :data="data_paginate"
+        />
+
+    </div>
   </div> 
   </section>
 </template>
 <script>
-import '@/styles/components/dashboard.scss';
-import Card from '@/components/Card.vue';
+import '@/styles/page/dashboard.scss';
+import CardAction from '@/components/CardAction.vue';
 import Paginate from '@/components/Paginate.vue';
-import store, { alertActionType } from '../store';
+import router from '../router';
+import store from '../store';
+import { viewError } from '../utils';
+
 export default {
   components: {
-    Card,
+    CardAction,
     Paginate
   },
   data: function(){
@@ -34,40 +48,35 @@ export default {
   computed: {
     data_posts: function(){
       return this.posts;
+    },
+    user_info: function(){
+      return store.getters.getInfo;
     }
   },
   methods: {
     paginate: async function(page=1) {
-      const { access_token } = store.getters.getInfo;
-      const user_id = access_token.split('|')[0];
-      await axios.get(`/users/${user_id}/posts?page=${page}&limit=${this.limit}`).then((res)=>{
-        this.data_paginate = res.data.paginate;
-        this.posts = res.data.posts.map((e)=>{
-          e = {
-            id: e.id,
-            title: e.title,
-            user: { name: null},
-            text: e.text
-          };
+      try {
+        const { user } = this.user_info;
+        const response = await axios.get(`/users/${user.id}/posts?page=${page}&limit=${this.limit}`);
+        this.data_paginate = response.data.paginate;
+       
+        this.posts = response.data.posts.map((e)=>{
+          e = { id: e.id, title: e.title, text: e.text };
           return e;
         });
-      }).catch((err)=> {
+
+      }catch(err){
         if(!err.response){
-          return console.log(err)
+          return console.log(err);
         }
-        store.dispatch('alert', {
-            type: alertActionType.OPEN_ALERT,
-            data: {
-              content: {
-                title: 'Erro na requisição',
-                text: err.response.data.message
-              },
-            }
-          });   
-      });
+        viewError(err, 'Erro ao requisitar posts');
+      }
     }
   },
   mounted: async function(){
+    if(!this.user_info.is_auth){
+      return router.push('/signin');
+    }
     await this.paginate();
   }
 }
